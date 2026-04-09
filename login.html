@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrar — Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+
+<body class="login-body">
+    <div class="login-wrap">
+        <div class="login-card">
+            <div class="login-brand">
+                <i class="ph-fill ph-diamond" aria-hidden="true"></i>
+                <span>Sua Empresa</span>
+            </div>
+            <h1>Entrar</h1>
+            <p class="login-sub">Acesse o painel com suas credenciais.</p>
+
+            <form id="login-form" autocomplete="off" novalidate>
+                <div class="form-group">
+                    <label for="username">Usuário</label>
+                    <input type="text" id="username" placeholder="admin ou mod" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Senha</label>
+                    <input type="password" id="password" placeholder="••••••••" required>
+                </div>
+                <div class="login-error" id="login-error" hidden>
+                    <i class="ph ph-warning-circle" aria-hidden="true"></i>
+                    <span>Usuário ou senha inválidos.</span>
+                </div>
+                <button type="submit" class="btn-primary login-btn">
+                    <i class="ph ph-sign-in" aria-hidden="true"></i> Entrar
+                </button>
+            </form>
+
+            <div class="login-hint">
+                <strong>Credenciais de demonstração:</strong>
+                <div><code>admin</code> / <code>admin123</code> — acesso completo</div>
+                <div><code>mod</code> / <code>mod123</code> — somente leitura</div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { login, currentUser } from './src/auth.js';
+
+        // Already logged in? skip login.
+        if (currentUser()) {
+            window.location.href = 'index.html';
+        }
+
+        const form = document.getElementById('login-form');
+        const errorEl = document.getElementById('login-error');
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+            const session = login(u, p);
+            if (session) {
+                window.location.href = 'index.html';
+            } else {
+                errorEl.hidden = false;
+                document.getElementById('password').value = '';
+            }
+        });
+    </script>
+</body>
+
+</html>
