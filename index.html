@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DashVendas — Premium Sales Dashboard</title>
+    <meta name="description" content="Dashboard de vendas e estoque em HTML, CSS e JavaScript puros.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <!-- Sidebar -->
+        <aside class="sidebar" aria-label="Navegação principal">
+            <div class="logo">
+                <i class="ph-fill ph-diamond" aria-hidden="true"></i>
+                <span id="brand-name">Sua Empresa</span>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#" data-view="dashboard" aria-current="page"><i class="ph ph-squares-four" aria-hidden="true"></i> Dashboard</a></li>
+                    <li><a href="#" data-view="vendas"><i class="ph ph-shopping-cart" aria-hidden="true"></i> Vendas</a></li>
+                    <li><a href="#" data-view="estoque"><i class="ph ph-package" aria-hidden="true"></i> Estoque</a></li>
+                    <li><a href="#" data-view="clientes"><i class="ph ph-users" aria-hidden="true"></i> Clientes</a></li>
+                    <li><a href="#" data-view="config"><i class="ph ph-gear" aria-hidden="true"></i> Configurações</a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.75rem;">
+                    <span id="user-name" style="text-transform:none;letter-spacing:0;font-size:0.75rem;color:var(--text);">—</span>
+                    <span id="user-role" class="role-badge">—</span>
+                </div>
+                <button class="btn-secondary logout-btn" id="logout-btn" type="button">
+                    <i class="ph ph-sign-out" aria-hidden="true"></i> Sair
+                </button>
+                <div style="margin-top:1rem;">v1.0 · Local</div>
+            </div>
+        </aside>
+
+        <!-- Main -->
+        <main class="main-content">
+            <header>
+                <div>
+                    <h1 id="page-title">Dashboard</h1>
+                    <div class="header-sub" id="today-date">—</div>
+                </div>
+                <div class="user-profile">
+                    <span>Admin</span>
+                    <div class="avatar" aria-hidden="true">A</div>
+                </div>
+            </header>
+
+            <!-- Dashboard view -->
+            <div class="view active" data-view="dashboard">
+                <div id="summary-cards" class="cards-container" aria-label="Resumo financeiro"></div>
+
+                <!-- Chart -->
+                <section class="section-card fade-in" aria-labelledby="perf-title">
+                    <div class="section-head">
+                        <div>
+                            <h2 id="perf-title">Performance</h2>
+                            <div class="header-sub">Receita &amp; lucro acumulados</div>
+                        </div>
+                        <div class="section-actions">
+                            <button class="btn-ghost" id="chart-toggle" type="button" title="Alternar escala" aria-label="Alternar escala do gráfico">
+                                <i class="ph ph-chart-line" aria-hidden="true"></i>
+                                <span id="chart-toggle-label">Linear</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chart-wrap">
+                        <canvas id="performance-chart" aria-label="Gráfico de receita e lucro"></canvas>
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- Vendas view -->
+            <div class="view" data-view="vendas">
+                <section class="section-card fade-in" aria-labelledby="sales-title">
+                    <div class="section-head">
+                        <div>
+                            <h2 id="sales-title">Vendas Recentes</h2>
+                            <div class="header-sub" id="sales-count">0 registros</div>
+                        </div>
+                        <div class="section-actions">
+                            <button class="btn-secondary" id="export-csv-btn" type="button">
+                                <i class="ph ph-download-simple" aria-hidden="true"></i> Exportar CSV
+                            </button>
+                            <button class="btn-primary" id="new-sale-btn" type="button" data-admin-only>
+                                <i class="ph ph-plus" aria-hidden="true"></i> Nova Venda
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table id="items-table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Produto</th>
+                                    <th scope="col">Data</th>
+                                    <th scope="col">Custo</th>
+                                    <th scope="col">Venda</th>
+                                    <th scope="col">Lucro</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col" style="text-align:right;">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Estoque view -->
+            <div class="view" data-view="estoque">
+                <section class="section-card fade-in" aria-labelledby="stock-title">
+                    <div class="section-head">
+                        <div>
+                            <h2 id="stock-title">Estoque Disponível</h2>
+                            <div class="header-sub"><i class="ph ph-info" aria-hidden="true"></i> <span id="inventory-count">0 itens</span></div>
+                        </div>
+                        <div class="section-actions">
+                            <div class="search-box">
+                                <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
+                                <label for="inventory-search" class="sr-only">Buscar produto</label>
+                                <input type="text" id="inventory-search" placeholder="Buscar produto…" autocomplete="off">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table id="inventory-table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Produto</th>
+                                    <th scope="col">Tamanho</th>
+                                    <th scope="col">Custo</th>
+                                    <th scope="col">Venda (Est.)</th>
+                                    <th scope="col">Margem</th>
+                                    <th scope="col">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Clientes view -->
+            <div class="view" data-view="clientes">
+                <section class="section-card fade-in" aria-labelledby="clients-title">
+                    <div class="section-head">
+                        <div>
+                            <h2 id="clients-title">Clientes & Leads</h2>
+                            <div class="header-sub" id="clients-count">0 clientes</div>
+                        </div>
+                        <div class="section-actions">
+                            <div class="search-box">
+                                <i class="ph ph-funnel" aria-hidden="true"></i>
+                                <label for="client-filter" class="sr-only">Filtrar por status</label>
+                                <select id="client-filter" style="background:transparent;border:none;color:var(--text);padding:0;">
+                                    <option value="">Todos</option>
+                                    <option value="forte">Lead Forte</option>
+                                    <option value="medio">Lead Médio</option>
+                                    <option value="fraco">Lead Fraco</option>
+                                    <option value="cliente">Cliente</option>
+                                </select>
+                            </div>
+                            <button class="btn-primary" id="new-client-btn" type="button" data-admin-only>
+                                <i class="ph ph-plus" aria-hidden="true"></i> Novo Cliente
+                            </button>
+                        </div>
+                    </div>
+                    <div class="clients-grid-wrap">
+                        <div id="clients-grid" class="clients-grid"></div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Configurações view -->
+            <div class="view" data-view="config">
+                <div class="settings-grid">
+                    <div class="setting-row" data-admin-only>
+                        <label for="brand-input">Nome da empresa</label>
+                        <input type="text" id="brand-input" placeholder="Sua Empresa" maxlength="40">
+                        <p>Aparece na barra lateral. Personalize com o nome do seu negócio.</p>
+                    </div>
+                    <div class="setting-row" data-admin-only>
+                        <label>Dados</label>
+                        <button class="btn-secondary" id="reset-btn" type="button">
+                            <i class="ph ph-arrow-counter-clockwise" aria-hidden="true"></i> Restaurar dados iniciais
+                        </button>
+                        <p>Remove todas as vendas registradas e recarrega o estoque de exemplo.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Sale Modal -->
+    <div id="sale-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-hidden="true">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modal-title">Registrar Nova Venda</h3>
+                <button id="sale-close-btn" type="button" class="btn-icon" aria-label="Fechar"><i class="ph ph-x" aria-hidden="true"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="sale-product-select">Produto</label>
+                    <select id="sale-product-select">
+                        <option value="">Selecione um item…</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="sale-price-input">Valor de Venda (R$)</label>
+                    <input type="number" id="sale-price-input" step="0.01" placeholder="0,00">
+                    <div class="hint" id="sale-hint">Selecione um produto para ver custo e estimativa.</div>
+                </div>
+                <div class="form-group">
+                    <label for="sale-date-input">Data</label>
+                    <input type="date" id="sale-date-input">
+                </div>
+                <div class="form-group">
+                    <label for="sale-client-select">Cliente (opcional)</label>
+                    <select id="sale-client-select">
+                        <option value="">Sem cliente vinculado</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="sale-cancel-btn" type="button">Cancelar</button>
+                <button class="btn-primary" id="sale-confirm-btn" type="button">Confirmar Venda</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Client Modal -->
+    <div id="client-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="client-modal-title" aria-hidden="true">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="client-modal-title">Novo Cliente</h3>
+                <button id="client-close-btn" type="button" class="btn-icon" aria-label="Fechar"><i class="ph ph-x" aria-hidden="true"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="client-name-input">Nome *</label>
+                    <input type="text" id="client-name-input" placeholder="Nome completo" maxlength="80">
+                </div>
+                <div class="form-group">
+                    <label for="client-email-input">E-mail</label>
+                    <input type="text" id="client-email-input" placeholder="email@exemplo.com" maxlength="80">
+                </div>
+                <div class="form-group">
+                    <label for="client-phone-input">Telefone</label>
+                    <input type="text" id="client-phone-input" placeholder="(11) 99999-0000" maxlength="20">
+                </div>
+                <div class="form-group">
+                    <label for="client-status-input">Classificação</label>
+                    <select id="client-status-input">
+                        <option value="forte">🔥 Lead Forte — alta intenção de compra</option>
+                        <option value="medio" selected>🌡 Lead Médio — interesse moderado</option>
+                        <option value="fraco">❄ Lead Fraco — pouco engajamento</option>
+                        <option value="cliente">✅ Cliente — já comprou</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="client-notes-input">Observações</label>
+                    <input type="text" id="client-notes-input" placeholder="Anotações sobre o contato" maxlength="200">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="client-cancel-btn" type="button">Cancelar</button>
+                <button class="btn-primary" id="client-confirm-btn" type="button">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Modal (replaces window.confirm) -->
+    <div id="confirm-modal" class="modal-overlay" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-message" aria-hidden="true">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="confirm-title">Confirmar</h3>
+            </div>
+            <div class="modal-body">
+                <p id="confirm-message" class="confirm-message"></p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="confirm-cancel" type="button">Cancelar</button>
+                <button class="btn-primary" id="confirm-ok" type="button">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast" role="status" aria-live="polite">
+        <i class="ph ph-check-circle" aria-hidden="true"></i>
+        <span id="toast-msg">Salvo</span>
+    </div>
+
+    <script type="module" src="src/main.js"></script>
+</body>
+
+</html>
