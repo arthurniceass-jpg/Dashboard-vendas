@@ -13,39 +13,75 @@
 </head>
 
 <body class="login-body">
-    <div class="login-wrap">
-        <div class="login-card">
-            <div class="login-brand">
-                <i class="ph-fill ph-diamond" aria-hidden="true"></i>
-                <span>Sua Empresa</span>
+    <div class="login-split">
+        <!-- Left: brand panel -->
+        <aside class="login-side">
+            <div class="login-side-inner">
+                <div class="login-brand">
+                    <i class="ph-fill ph-diamond" aria-hidden="true"></i>
+                    <span>Sua Empresa</span>
+                </div>
+                <div class="login-pitch">
+                    <h2>Gerencie vendas, estoque e leads<br><em>num só lugar.</em></h2>
+                    <p>Dashboard simples, rápido e focado no que importa: acompanhar resultados e tomar decisões.</p>
+                </div>
+                <ul class="login-features">
+                    <li><i class="ph ph-chart-line-up"></i> Acompanhamento em tempo real</li>
+                    <li><i class="ph ph-package"></i> Controle de estoque integrado</li>
+                    <li><i class="ph ph-users-three"></i> CRM com classificação de leads</li>
+                </ul>
+                <div class="login-footer">© 2026 · Demo</div>
             </div>
-            <h1>Entrar</h1>
-            <p class="login-sub">Acesse o painel com suas credenciais.</p>
+        </aside>
 
-            <form id="login-form" autocomplete="off" novalidate>
-                <div class="form-group">
-                    <label for="username">Usuário</label>
-                    <input type="text" id="username" placeholder="admin ou mod" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">Senha</label>
-                    <input type="password" id="password" placeholder="••••••••" required>
-                </div>
-                <div class="login-error" id="login-error" hidden>
-                    <i class="ph ph-warning-circle" aria-hidden="true"></i>
-                    <span>Usuário ou senha inválidos.</span>
-                </div>
-                <button type="submit" class="btn-primary login-btn">
-                    <i class="ph ph-sign-in" aria-hidden="true"></i> Entrar
-                </button>
-            </form>
+        <!-- Right: form -->
+        <main class="login-main">
+            <div class="login-card">
+                <h1>Bem-vindo de volta</h1>
+                <p class="login-sub">Acesse o painel com suas credenciais.</p>
 
-            <div class="login-hint">
-                <strong>Credenciais de demonstração:</strong>
-                <div><code>admin</code> / <code>admin123</code> — acesso completo</div>
-                <div><code>mod</code> / <code>mod123</code> — somente leitura</div>
+                <form id="login-form" autocomplete="off" novalidate>
+                    <div class="form-group">
+                        <label for="username">Usuário</label>
+                        <input type="text" id="username" placeholder="admin ou mod" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Senha</label>
+                        <div class="password-wrap">
+                            <input type="password" id="password" placeholder="••••••••" required>
+                            <button type="button" class="password-toggle" id="password-toggle" aria-label="Mostrar senha">
+                                <i class="ph ph-eye" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="login-error" id="login-error" hidden>
+                        <i class="ph ph-warning-circle" aria-hidden="true"></i>
+                        <span>Usuário ou senha inválidos.</span>
+                    </div>
+                    <button type="submit" class="btn-primary login-btn">
+                        <i class="ph ph-sign-in" aria-hidden="true"></i> Entrar
+                    </button>
+                </form>
+
+                <div class="login-hint">
+                    <strong>Credenciais de demonstração</strong>
+                    <button type="button" class="demo-fill" data-user="admin" data-pass="admin123">
+                        <i class="ph ph-shield-check"></i>
+                        <div>
+                            <div><code>admin</code> / <code>admin123</code></div>
+                            <span>acesso completo</span>
+                        </div>
+                    </button>
+                    <button type="button" class="demo-fill" data-user="mod" data-pass="mod123">
+                        <i class="ph ph-eye"></i>
+                        <div>
+                            <div><code>mod</code> / <code>mod123</code></div>
+                            <span>somente leitura</span>
+                        </div>
+                    </button>
+                </div>
             </div>
-        </div>
+        </main>
     </div>
 
     <script type="module">
@@ -70,6 +106,23 @@
                 errorEl.hidden = false;
                 document.getElementById('password').value = '';
             }
+        });
+
+        // Demo fill buttons
+        document.querySelectorAll('.demo-fill').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.getElementById('username').value = btn.dataset.user;
+                document.getElementById('password').value = btn.dataset.pass;
+                errorEl.hidden = true;
+                form.requestSubmit();
+            });
+        });
+
+        // Password toggle
+        const pwdInput = document.getElementById('password');
+        document.getElementById('password-toggle').addEventListener('click', () => {
+            const isPwd = pwdInput.type === 'password';
+            pwdInput.type = isPwd ? 'text' : 'password';
         });
     </script>
 </body>
