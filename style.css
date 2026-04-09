@@ -25,6 +25,7 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 *::selection { background: var(--primary); color: var(--bg); }
+[hidden] { display: none !important; }
 
 /* Visible focus ring for keyboard users */
 :focus-visible {
@@ -900,6 +901,10 @@ select:focus, input:focus { outline: none; border-color: var(--primary); }
 .login-card {
     width: 100%;
     max-width: 380px;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
 }
 .login-card h1 {
     font-size: 1.65rem;
