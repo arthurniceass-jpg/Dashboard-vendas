@@ -422,6 +422,33 @@ header h1 {
     padding: 0;
 }
 
+/* ================= PERIOD TABS ================= */
+.period-tabs {
+    display: inline-flex;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 3px;
+    gap: 2px;
+}
+.period-tab {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 500;
+    padding: 0.4rem 0.7rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s var(--ease);
+}
+.period-tab:hover { color: var(--text); }
+.period-tab.active {
+    background: var(--primary-soft);
+    color: var(--primary);
+}
+
 /* ================= CHART ================= */
 .chart-wrap {
     padding: 1.75rem;

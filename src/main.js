@@ -1,7 +1,7 @@
 // Bootstrap: wires state, UI and events.
 
 import { loadState, saveState, clearState, createInitialState } from './state.js';
-import { today, buildCsv, formatCurrency, formatEstimate, estimateAvg } from './utils.js';
+import { today, buildCsv, parseCsv, filterByPeriod, formatCurrency, formatEstimate, estimateAvg } from './utils.js';
 import { renderChart } from './chart.js';
 import {
     $, toast, confirmModal,
@@ -17,6 +17,7 @@ let state = loadState();
 let inventorySearch = '';
 let editingSaleId = null;
 let chartMode = 'linear';
+let chartPeriod = 0; // days; 0 = all
 let clientFilter = '';
 
 const BRAND_KEY = 'dashvendas:brand';
@@ -59,7 +60,7 @@ function switchView(view, { updateHash = true } = {}) {
         history.pushState(null, '', '#' + view);
     }
     if (view === 'dashboard') {
-        setTimeout(() => renderChart($('#performance-chart'), state.sales, chartMode), 50);
+        setTimeout(() => renderChart($('#performance-chart'), filterByPeriod(state.sales, chartPeriod), chartMode), 50);
     }
 }
 
@@ -72,7 +73,7 @@ function renderAll() {
     renderInventory(state, inventorySearch);
     renderSales(state);
     renderClientsFiltered();
-    renderChart($('#performance-chart'), state.sales, chartMode);
+    renderChart($('#performance-chart'), filterByPeriod(state.sales, chartPeriod), chartMode);
     applyRoleRestrictions();
 }
 
@@ -290,6 +291,38 @@ async function resetData() {
     toast('Dados restaurados', 'ph-arrow-counter-clockwise');
 }
 
+async function importCsv(file) {
+    if (!guardAdmin()) return;
+    if (!file) return;
+    try {
+        const text = await file.text();
+        const { sales, errors } = parseCsv(text);
+        if (!sales.length) {
+            return toast(errors[0] || 'Nenhuma venda válida encontrada', 'ph-warning', 'error');
+        }
+        const ok = await confirmModal({
+            title: 'Importar vendas',
+            message: `${sales.length} venda(s) válida(s) encontradas${errors.length ? ` (${errors.length} ignoradas).` : '.'} Deseja importar?`,
+            confirmText: 'Importar'
+        });
+        if (!ok) return;
+        sales.forEach((s, i) => {
+            state.sales.unshift({
+                id: 's' + Date.now() + '_' + i,
+                productId: null,
+                clientId: null,
+                ...s
+            });
+        });
+        saveState(state);
+        renderAll();
+        toast(`${sales.length} venda(s) importada(s)`);
+    } catch (err) {
+        console.error(err);
+        toast('Falha ao ler arquivo', 'ph-warning', 'error');
+    }
+}
+
 function exportSalesCSV() {
     if (!state.sales.length) return toast('Nada para exportar', 'ph-warning', 'error');
     const csv = buildCsv(state.sales);
@@ -353,7 +386,24 @@ document.addEventListener('DOMContentLoaded', () => {
     $('#chart-toggle').addEventListener('click', () => {
         chartMode = chartMode === 'linear' ? 'log' : 'linear';
         $('#chart-toggle-label').textContent = chartMode === 'log' ? 'Log' : 'Linear';
-        renderChart($('#performance-chart'), state.sales, chartMode);
+        renderChart($('#performance-chart'), filterByPeriod(state.sales, chartPeriod), chartMode);
+    });
+
+    // Period tabs
+    document.querySelectorAll('.period-tab').forEach(btn => {
+        btn.addEventListener('click', () => {
+            chartPeriod = parseInt(btn.dataset.period, 10) || 0;
+            document.querySelectorAll('.period-tab').forEach(b => b.classList.toggle('active', b === btn));
+            renderChart($('#performance-chart'), filterByPeriod(state.sales, chartPeriod), chartMode);
+        });
+    });
+
+    // Import CSV
+    const importInput = $('#import-csv-input');
+    $('#import-csv-btn')?.addEventListener('click', () => importInput.click());
+    importInput.addEventListener('change', (e) => {
+        importCsv(e.target.files[0]);
+        e.target.value = '';
     });
 
     // Header buttons

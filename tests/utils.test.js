@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import {
     formatCurrency, formatEstimate, estimateAvg,
-    computeMargin, computeSummary, escapeHtml, buildCsv
+    computeMargin, computeSummary, escapeHtml, buildCsv,
+    parseCsv, filterByPeriod
 } from '../src/utils.js';
 
 describe('formatCurrency', () => {
@@ -78,6 +79,60 @@ describe('escapeHtml', () => {
     it('handles null/undefined', () => {
         expect(escapeHtml(null)).toBe('');
         expect(escapeHtml(undefined)).toBe('');
+    });
+});
+
+describe('filterByPeriod', () => {
+    const mkDate = (offset) => {
+        const d = new Date();
+        d.setDate(d.getDate() - offset);
+        return d.toISOString().split('T')[0];
+    };
+    const sales = [
+        { date: mkDate(1) },
+        { date: mkDate(10) },
+        { date: mkDate(60) }
+    ];
+    it('returns all when days is 0', () => {
+        expect(filterByPeriod(sales, 0)).toHaveLength(3);
+    });
+    it('filters last 7 days', () => {
+        expect(filterByPeriod(sales, 7)).toHaveLength(1);
+    });
+    it('filters last 30 days', () => {
+        expect(filterByPeriod(sales, 30)).toHaveLength(2);
+    });
+});
+
+describe('parseCsv', () => {
+    it('parses a valid CSV with BOM and BR numbers', () => {
+        const csv = '\uFEFFProduto;Tamanho;Data;Custo;Venda;Lucro;Status\n"Item A";M;2026-01-01;50,00;120,00;70,00;completed';
+        const { sales, errors } = parseCsv(csv);
+        expect(errors).toHaveLength(0);
+        expect(sales).toHaveLength(1);
+        expect(sales[0].name).toBe('Item A');
+        expect(sales[0].cost).toBe(50);
+        expect(sales[0].price).toBe(120);
+    });
+    it('rejects invalid header', () => {
+        const { errors } = parseCsv('foo;bar\nbaz;qux');
+        expect(errors[0]).toContain('Cabeçalho');
+    });
+    it('skips invalid rows but keeps valid ones', () => {
+        const csv = 'Produto;Tamanho;Data;Custo;Venda\nValido;M;2026-01-01;10;20\n;;;;';
+        const { sales, errors } = parseCsv(csv);
+        expect(sales).toHaveLength(1);
+        expect(errors).toHaveLength(1);
+    });
+    it('round-trips through buildCsv', () => {
+        const original = [
+            { name: 'Item X', size: 'M', date: '2026-01-01', cost: 10, price: 25, status: 'completed' }
+        ];
+        const csv = buildCsv(original);
+        const { sales } = parseCsv(csv);
+        expect(sales[0].name).toBe('Item X');
+        expect(sales[0].price).toBe(25);
+        expect(sales[0].cost).toBe(10);
     });
 });
 
