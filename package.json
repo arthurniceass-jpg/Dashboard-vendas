@@ -1,0 +1,16 @@
+{
+  "name": "dashvendas",
+  "version": "1.0.0",
+  "description": "Dashboard de vendas e estoque em HTML/CSS/JS puro",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "serve": "npx serve ."
+  },
+  "keywords": ["dashboard", "vendas", "vanilla-js", "chartjs"],
+  "license": "MIT",
+  "devDependencies": {
+    "vitest": "^2.0.0"
+  }
+}
