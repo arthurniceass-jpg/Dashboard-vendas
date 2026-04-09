@@ -1,6 +1,6 @@
 # DashVendas
 
-[![CI](https://github.com/SEU_USUARIO/dashboard-vendas/actions/workflows/ci.yml/badge.svg)](https://github.com/SEU_USUARIO/dashboard-vendas/actions/workflows/ci.yml)
+[![CI](https://github.com/arthurniceass-jpg/Dashboard-vendas/actions/workflows/ci.yml/badge.svg)](https://github.com/arthurniceass-jpg/Dashboard-vendas/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Dashboard de vendas, estoque e leads feito com **HTML, CSS e JavaScript puros** — sem frameworks, sem build step. Persistência via `localStorage`, gráficos com Chart.js, autenticação client-side com roles e UI inspirada em painéis premium.
@@ -9,7 +9,7 @@ Dashboard de vendas, estoque e leads feito com **HTML, CSS e JavaScript puros** 
 
 ## 🔗 Demo
 
-**Live:** _https://SEU_USUARIO.github.io/dashboard-vendas/login.html_
+**Live:** **https://arthurniceass-jpg.github.io/Dashboard-vendas/login.html**
 
 **Credenciais de demonstração:**
 - `admin` / `admin123` — acesso completo
